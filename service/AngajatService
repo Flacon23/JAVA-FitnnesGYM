@@ -1,0 +1,83 @@
+package com.fitnessapp.service;
+
+import com.fitnessapp.entity.Angajat;
+import com.fitnessapp.repository.AngajatRepository;
+import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.stereotype.Service;
+import org.springframework.transaction.annotation.Transactional;
+
+import java.util.List;
+import java.util.Optional;
+
+@Service
+@Transactional
+public class AngajatService {
+    private final AngajatRepository angajatRepository;
+
+    @Autowired
+    public AngajatService(AngajatRepository angajatRepository) {
+        this.angajatRepository = angajatRepository;
+    }
+
+    public List<Angajat> getAllAngajati() {
+        return angajatRepository.findAll();
+    }
+
+    public Optional<Angajat> getAngajatById(Long id) {
+        return angajatRepository.findById(id);
+    }
+
+    public void addAngajat(Angajat angajat) {
+        validateAngajat(angajat);
+        angajatRepository.save(angajat);
+    }
+
+    public boolean deleteAngajatById(Long id) {
+        if (angajatRepository.existsById(id)) {
+            angajatRepository.deleteById(id);
+            return true;
+        }
+        return false;
+    }
+    private void validateAngajat(Angajat angajat) {
+        StringBuilder errors = new StringBuilder();
+
+        // Validare nume
+        if (angajat.getNume() == null || !angajat.getNume().matches("^[a-zA-ZăâîșțĂÂÎȘȚ]+$")) {
+            errors.append("Numele poate conține doar litere și nu poate fi gol.\n");
+        }
+
+        // Validare prenume
+        if (angajat.getPrenume() == null || !angajat.getPrenume().matches("^[a-zA-ZăâîșțĂÂÎȘȚ]+$")) {
+            errors.append("Prenumele poate conține doar litere și nu poate fi gol.\n");
+        }
+
+        // Validare funcție
+        if (angajat.getFunctie() == null || !angajat.getFunctie().matches("^[a-zA-ZăâîșțĂÂÎȘȚ ]+$")) {
+            errors.append("Funcția poate conține doar litere, spații și nu poate fi goală.\n");
+        }
+
+        // Validare salariu
+        if (angajat.getSalariu() == null || angajat.getSalariu() <= 0) {
+            errors.append("Salariul trebuie să fie un număr pozitiv și nu poate fi gol.\n");
+        }
+
+        // Dacă există erori, aruncăm o excepție
+        if (errors.length() > 0) {
+            throw new IllegalArgumentException(errors.toString());
+        }
+    }
+    public boolean updateAngajat(Long id, Angajat updatedAngajat) {
+        validateAngajat(updatedAngajat);
+        return angajatRepository.findById(id)
+                .map(angajat -> {
+                    angajat.setNume(updatedAngajat.getNume());
+                    angajat.setPrenume(updatedAngajat.getPrenume());
+                    angajat.setFunctie(updatedAngajat.getFunctie());
+                    angajat.setSalariu(updatedAngajat.getSalariu());
+                    angajatRepository.save(angajat);
+                    return true;
+                })
+                .orElse(false);
+    }
+}
