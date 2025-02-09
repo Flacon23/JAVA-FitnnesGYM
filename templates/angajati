@@ -1,0 +1,267 @@
+<!DOCTYPE html>
+<html xmlns:th="http://www.thymeleaf.org">
+<head>
+    <meta charset="UTF-8">
+    <title>Lista Angajaților</title>
+    <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css">
+    <style>
+        body {
+            background: linear-gradient(to right, #1a1a1a, #2d2d2d);
+            color: #ffffff;
+            font-family: 'Arial', sans-serif;
+        }
+
+        .hero-section {
+            background-image: url('https://gym.bigsport.md/content/userfiles/images/%D0%B3%D1%83%D1%80%D0%BF%D0%BF%D0%B0.png');
+            background-size: cover;
+            background-position: center;
+            height: 40vh;
+            position: relative;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+        }
+
+        .container {
+            background: rgba(255, 255, 255, 0.05);
+            border-radius: 10px;
+            padding: 30px;
+            box-shadow: 0 10px 20px rgba(0, 0, 0, 0.5);
+        }
+
+        .table {
+            background: rgba(255, 255, 255, 0.05);
+            color: #ffffff;
+            border-radius: 10px;
+            overflow: hidden;
+        }
+
+        .table thead th {
+            background: rgba(198, 169, 114, 0.1);
+            color: #c6a972;
+            border-bottom: 2px solid rgba(198, 169, 114, 0.2);
+            padding: 15px;
+        }
+
+        .table tbody td {
+            border-bottom: 1px solid rgba(255, 255, 255, 0.1);
+            padding: 12px 15px;
+        }
+
+        .table tbody tr:hover {
+            background: rgba(198, 169, 114, 0.05);
+        }
+
+        .btn {
+            font-weight: 600;
+            transition: all 0.3s ease;
+        }
+
+        .btn-primary {
+            background: linear-gradient(45deg, #c6a972, #e9d5aa);
+            border: none;
+            color: #000;
+        }
+
+        .btn-primary:hover {
+            background: linear-gradient(45deg, #e9d5aa, #c6a972);
+            box-shadow: 0 5px 15px rgba(198, 169, 114, 0.4);
+        }
+
+        .btn-danger {
+            background: linear-gradient(45deg, #e57373, #f2a7a7);
+            border: none;
+            color: #000;
+        }
+
+        .btn-danger:hover {
+            background: linear-gradient(45deg, #f2a7a7, #e57373);
+            box-shadow: 0 5px 15px rgba(230, 115, 115, 0.4);
+        }
+
+        .btn-success {
+            background: linear-gradient(45deg, #46b582, #7dd4b7);
+            border: none;
+            color: #000;
+        }
+
+        .btn-success:hover {
+            background: linear-gradient(45deg, #7dd4b7, #46b582);
+            box-shadow: 0 5px 15px rgba(70, 181, 130, 0.4);
+        }
+
+        h1, h2 {
+            color: #c6a972;
+            text-align: center;
+            margin-bottom: 30px;
+        }
+
+        .error {
+            color: red;
+            font-size: 0.9rem;
+        }
+    </style>
+    <script>
+        // Helper function to validate employee data
+        function validateEmployee(nume, prenume, functie, salariu) {
+            let errors = [];
+
+            if (!/^[a-zA-ZăâîșțĂÂÎȘȚ]+$/.test(nume)) {
+                errors.push("Numele poate conține doar litere și nu poate fi gol.");
+            }
+
+            if (!/^[a-zA-ZăâîșțĂÂÎȘȚ]+$/.test(prenume)) {
+                errors.push("Prenumele poate conține doar litere și nu poate fi gol.");
+            }
+
+            if (!/^[a-zA-ZăâîșțĂÂÎȘȚ ]+$/.test(functie)) {
+                errors.push("Funcția poate conține doar litere și spații și nu poate fi goală.");
+            }
+
+            if (!salariu || parseFloat(salariu) <= 0) {
+                errors.push("Salariul trebuie să fie un număr pozitiv.");
+            }
+
+            return errors;
+        }
+
+        // Function to display validation errors
+        function displayErrors(errors, containerId) {
+            const errorContainer = document.getElementById(containerId);
+            errorContainer.innerHTML = "";
+            errors.forEach(error => {
+                const errorElement = document.createElement("div");
+                errorElement.className = "error";
+                errorElement.textContent = error;
+                errorContainer.appendChild(errorElement);
+            });
+        }
+
+        // Function to edit an employee row
+        async function editRow(employeeId) {
+            const row = document.getElementById(`row-${employeeId}`);
+            const nameCell = row.querySelector(".name-cell");
+            const surnameCell = row.querySelector(".surname-cell");
+            const positionCell = row.querySelector(".position-cell");
+            const salaryCell = row.querySelector(".salary-cell");
+
+            // Convert table cells to input fields for editing
+            nameCell.innerHTML = `<input type="text" value="${nameCell.innerText}" id="name-${employeeId}">`;
+            surnameCell.innerHTML = `<input type="text" value="${surnameCell.innerText}" id="surname-${employeeId}">`;
+            positionCell.innerHTML = `<input type="text" value="${positionCell.innerText}" id="position-${employeeId}">`;
+            salaryCell.innerHTML = `<input type="number" value="${salaryCell.innerText}" id="salary-${employeeId}">`;
+
+            const editButton = row.querySelector(".edit-btn");
+            const errorContainerId = `errors-${employeeId}`;
+            editButton.innerText = "Salvează";
+            editButton.onclick = async () => {
+                const name = document.getElementById(`name-${employeeId}`).value;
+                const surname = document.getElementById(`surname-${employeeId}`).value;
+                const position = document.getElementById(`position-${employeeId}`).value;
+                const salary = document.getElementById(`salary-${employeeId}`).value;
+
+                const errors = validateEmployee(name, surname, position, salary);
+                if (errors.length > 0) {
+                    displayErrors(errors, errorContainerId);
+                    return;
+                }
+
+                const response = await fetch(`/angajati/${employeeId}`, {
+                    method: 'PUT',
+                    headers: { 'Content-Type': 'application/json' },
+                    body: JSON.stringify({ nume: name, prenume: surname, functie: position, salariu: parseFloat(salary) }),
+                });
+                if (response.ok) location.reload();
+            };
+        }
+
+        // Function to delete an employee
+        async function deleteEmployee(employeeId) {
+            if (confirm("Ești sigur că vrei să ștergi acest angajat?")) {
+                const response = await fetch(`/angajati/delete`, {
+                    method: 'POST',
+                    headers: { 'Content-Type': 'application/x-www-form-urlencoded' },
+                    body: new URLSearchParams({ id: employeeId }),
+                });
+                if (response.ok) location.reload();
+            }
+        }
+
+        // Function to add a new employee
+        async function addEmployee() {
+            const name = document.getElementById("new-name").value;
+            const surname = document.getElementById("new-surname").value;
+            const position = document.getElementById("new-position").value;
+            const salary = document.getElementById("new-salary").value;
+
+            const errors = validateEmployee(name, surname, position, salary);
+            if (errors.length > 0) {
+                displayErrors(errors, "add-errors");
+                return;
+            }
+
+            const response = await fetch(`/angajati`, {
+                method: 'POST',
+                headers: { 'Content-Type': 'application/x-www-form-urlencoded' },
+                body: new URLSearchParams({
+                    nume: name,
+                    prenume: surname,
+                    functie: position,
+                    salariu: salary
+                }),
+            });
+            if (response.ok) location.reload();
+        }
+    </script>
+</head>
+<body>
+<div class="hero-section mb-5">
+    <div class="hero-overlay"></div>
+    <div class="hero-content">
+        <h1 class="display-4 fw-bold mb-3">Elite Fitness Club</h1>
+    </div>
+</div>
+
+<div class="container mt-5">
+    <h1>Lista Angajaților</h1>
+    <table class="table">
+        <thead>
+        <tr>
+            <th>Nume</th>
+            <th>Prenume</th>
+            <th>Funcție</th>
+            <th>Salariu</th>
+            <th>Acțiuni</th>
+        </tr>
+        </thead>
+        <tbody>
+        <tr th:each="employee : ${angajati}" th:id="'row-' + ${employee.id}">
+            <td class="name-cell" th:text="${employee.nume}"></td>
+            <td class="surname-cell" th:text="${employee.prenume}"></td>
+            <td class="position-cell" th:text="${employee.functie}"></td>
+            <td class="salary-cell" th:text="${employee.salariu}"></td>
+            <td>
+                <button class="btn btn-primary btn-sm edit-btn" th:onclick="'editRow(' + ${employee.id} + ')'">Editează</button>
+                <button class="btn btn-danger btn-sm" th:onclick="'deleteEmployee(' + ${employee.id} + ')'">Șterge</button>
+            </td>
+        </tr>
+        <tr>
+            <td colspan="5" id="errors-${employee.id}" class="error-container"></td>
+        </tr>
+        </tbody>
+    </table>
+
+    <h2>Adaugă un angajat nou</h2>
+    <div id="add-errors" class="mb-3"></div>
+    <form onsubmit="event.preventDefault(); addEmployee();">
+        <div class="row mb-3">
+            <div class="col"><input type="text" class="form-control" id="new-name" placeholder="Nume" required></div>
+            <div class="col"><input type="text" class="form-control" id="new-surname" placeholder="Prenume" required></div>
+            <div class="col"><input type="text" class="form-control" id="new-position" placeholder="Funcție" required></div>
+            <div class="col"><input type="number" class="form-control" id="new-salary" placeholder="Salariu" required></div>
+            <div class="col"><button type="submit" class="btn btn-success">Adaugă</button></div>
+        </div>
+    </form>
+</div>
+</body>
+</html>
