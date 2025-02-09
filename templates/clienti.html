@@ -1,0 +1,551 @@
+<!DOCTYPE html>
+<html xmlns:th="http://www.thymeleaf.org">
+<head>
+    <meta charset="UTF-8">
+    <title>Lista Clienților</title>
+    <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css">
+    <style>
+        :root {
+            --bg-gradient: linear-gradient(to right, #1a1a1a, #2d2d2d);
+            --text-color: #ffffff;
+            --container-bg: rgba(255, 255, 255, 0.05);
+            --table-bg: rgba(255, 255, 255, 0.05);
+            --table-border: rgba(255, 255, 255, 0.1);
+            --hover-bg: rgba(198, 169, 114, 0.05);
+        }
+
+        [data-theme="light"] {
+            --bg-gradient: linear-gradient(to right, #f8f9fa, #e9ecef);
+            --text-color: #212529;
+            --container-bg: rgba(255, 255, 255, 0.9);
+            --table-bg: rgba(255, 255, 255, 0.9);
+            --table-border: rgba(0, 0, 0, 0.1);
+            --hover-bg: rgba(198, 169, 114, 0.1);
+        }
+
+        .error-message {
+            color: #ff6b6b;
+            font-size: 0.875rem;
+            margin-top: 0.25rem;
+            display: none;
+        }
+
+        .input-error {
+            border-color: #ff6b6b !important;
+        }
+
+        body {
+            background: var(--bg-gradient);
+            color: var(--text-color);
+            font-family: 'Arial', sans-serif;
+            transition: all 0.3s ease;
+        }
+
+        .hero-section {
+            background-image: url('https://gym.bigsport.md/content/userfiles/images/%D0%B3%D1%80%D1%83%D0%BF%D0%BF%D0%B0.png');
+            background-size: cover;
+            background-position: center;
+            height: 40vh;
+            position: relative;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+        }
+
+        .container {
+            background: var(--container-bg);
+            border-radius: 10px;
+            padding: 30px;
+            box-shadow: 0 10px 20px rgba(0, 0, 0, 0.5);
+            transition: all 0.3s ease;
+        }
+
+        .table {
+            background: var(--table-bg);
+            color: var(--text-color);
+            border-radius: 10px;
+            overflow: hidden;
+            transition: all 0.3s ease;
+        }
+
+        .table thead th {
+            background: rgba(198, 169, 114, 0.1);
+            color: #c6a972;
+            border-bottom: 2px solid rgba(198, 169, 114, 0.2);
+            padding: 15px;
+        }
+
+        .table tbody td {
+            border-bottom: 1px solid var(--table-border);
+            padding: 12px 15px;
+        }
+
+        .table tbody tr:hover {
+            background: var(--hover-bg);
+        }
+
+        .btn {
+            font-weight: 600;
+            transition: all 0.3s ease;
+        }
+
+        .btn-primary {
+            background: linear-gradient(45deg, #c6a972, #e9d5aa);
+            border: none;
+            color: #000;
+        }
+
+        .btn-primary:hover {
+            background: linear-gradient(45deg, #e9d5aa, #c6a972);
+            box-shadow: 0 5px 15px rgba(198, 169, 114, 0.4);
+        }
+
+        .btn-danger {
+            background: linear-gradient(45deg, #e57373, #f2a7a7);
+            border: none;
+            color: #000;
+        }
+
+        .btn-danger:hover {
+            background: linear-gradient(45deg, #f2a7a7, #e57373);
+            box-shadow: 0 5px 15px rgba(230, 115, 115, 0.4);
+        }
+
+        .btn-success {
+            background: linear-gradient(45deg, #46b582, #7dd4b7);
+            border: none;
+            color: #000;
+        }
+
+        .btn-success:hover {
+            background: linear-gradient(45deg, #7dd4b7, #46b582);
+            box-shadow: 0 5px 15px rgba(70, 181, 130, 0.4);
+        }
+
+        h1, h2 {
+            color: #c6a972;
+            text-align: center;
+            margin-bottom: 30px;
+        }
+
+        .theme-toggle {
+            position: fixed;
+            top: 20px;
+            right: 20px;
+            z-index: 1000;
+            padding: 10px 20px;
+            border-radius: 20px;
+            background: linear-gradient(45deg, #c6a972, #e9d5aa);
+            border: none;
+            color: #000;
+            font-weight: 600;
+            cursor: pointer;
+            transition: all 0.3s ease;
+            display: flex;
+            align-items: center;
+            gap: 8px;
+        }
+
+        .theme-toggle:hover {
+            background: linear-gradient(45deg, #e9d5aa, #c6a972);
+            box-shadow: 0 5px 15px rgba(198, 169, 114, 0.4);
+        }
+
+        .theme-toggle i {
+            font-size: 1.2em;
+        }
+    </style>
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css">
+    <script>
+        function toggleTheme() {
+            const html = document.documentElement;
+            const currentTheme = html.getAttribute('data-theme');
+            const newTheme = currentTheme === 'light' ? 'dark' : 'light';
+
+            html.setAttribute('data-theme', newTheme);
+            localStorage.setItem('theme', newTheme);
+
+            // Update button icon and text
+            const button = document.querySelector('.theme-toggle');
+            const icon = button.querySelector('i');
+            if (newTheme === 'light') {
+                icon.className = 'fas fa-moon';
+                button.querySelector('span').textContent = 'Dark Mode';
+            } else {
+                icon.className = 'fas fa-sun';
+                button.querySelector('span').textContent = 'Light Mode';
+            }
+        }
+
+        // Initialize theme
+        document.addEventListener('DOMContentLoaded', () => {
+            const savedTheme = localStorage.getItem('theme') || 'dark';
+            document.documentElement.setAttribute('data-theme', savedTheme);
+
+            const button = document.querySelector('.theme-toggle');
+            const icon = button.querySelector('i');
+            if (savedTheme === 'light') {
+                icon.className = 'fas fa-moon';
+                button.querySelector('span').textContent = 'Dark Mode';
+            } else {
+                icon.className = 'fas fa-sun';
+                button.querySelector('span').textContent = 'Light Mode';
+            }
+        });
+        function validatePhone(phone) {
+            return /^\d{10}$/.test(phone);
+        }
+
+        function validateNameSurname(name) {
+            return /^[a-zA-Z]+$/.test(name); // Numele și prenumele trebuie să conțină doar litere
+        }
+
+        function showError(message) {
+            const alert = document.getElementById('alert-message');
+            alert.textContent = message;
+            alert.style.display = 'block';
+            setTimeout(() => {
+                alert.style.display = 'none';
+            }, 5000);
+        }
+
+        async function searchClient() {
+            const name = document.getElementById("search-name").value;
+
+            const response = await fetch(`/clienti/search?nume=${encodeURIComponent(name)}`);
+            if (response.ok) {
+                const clients = await response.json();
+                const resultsTable = document.getElementById("search-results");
+                const resultsBody = document.getElementById("search-results-body");
+
+                // Resetează tabelul
+                resultsBody.innerHTML = "";
+
+                if (clients.length > 0) {
+                    resultsTable.style.display = "table";
+                    clients.forEach(client => {
+                        const row = document.createElement("tr");
+                        row.innerHTML = `
+                        <td>${client.nume}</td>
+                        <td>${client.prenume}</td>
+                        <td>${client.email}</td>
+                        <td>${client.telefon}</td>
+                    `;
+                        resultsBody.appendChild(row);
+                    });
+                } else {
+                    resultsTable.style.display = "none";
+                    alert("Niciun client găsit cu acest nume.");
+                }
+            } else {
+                alert("A apărut o eroare la căutare.");
+            }
+        }
+
+        async function editRow(clientId) {
+            const row = document.getElementById(`row-${clientId}`);
+            const nameCell = row.querySelector(".name-cell");
+            const surnameCell = row.querySelector(".surname-cell");
+            const emailCell = row.querySelector(".email-cell");
+            const phoneCell = row.querySelector(".phone-cell");
+
+            phoneCell.innerHTML = `
+            <input type="text" value="${phoneCell.innerText}" id="phone-${clientId}">
+            <div class="error-message" id="phone-error-${clientId}">Numărul de telefon trebuie să conțină exact 10 cifre</div>
+        `;
+
+            nameCell.innerHTML = `<input type="text" value="${nameCell.innerText}" id="name-${clientId}">`;
+            surnameCell.innerHTML = `<input type="text" value="${surnameCell.innerText}" id="surname-${clientId}">`;
+            emailCell.innerHTML = `<input type="email" value="${emailCell.innerText}" id="email-${clientId}">`;
+
+            const editButton = row.querySelector(".edit-btn");
+            editButton.innerText = "Salvează";
+            editButton.onclick = () => saveClient(clientId);
+        }
+
+        async function saveClient(clientId) {
+            const name = document.getElementById(`name-${clientId}`).value.trim();
+            const surname = document.getElementById(`surname-${clientId}`).value.trim();
+            const email = document.getElementById(`email-${clientId}`).value.trim();
+            const phone = document.getElementById(`phone-${clientId}`).value.trim();
+
+            const phoneError = document.getElementById(`phone-error-${clientId}`);
+            const nameError = document.getElementById(`name-error-${clientId}`);
+            const surnameError = document.getElementById(`surname-error-${clientId}`);
+            const emailError = document.getElementById(`email-error-${clientId}`);
+
+            // Ascundem mesajele de eroare inițial
+            phoneError.style.display = 'none';
+            nameError && (nameError.style.display = 'none');
+            surnameError && (surnameError.style.display = 'none');
+            emailError && (emailError.style.display = 'none');
+
+            // Validări
+            if (!name || !validateNameSurname(name)) {
+                if (!nameError) {
+                    const errorDiv = document.createElement("div");
+                    errorDiv.classList.add("error-message");
+                    errorDiv.id = `name-error-${clientId}`;
+                    errorDiv.textContent = "Numele trebuie să conțină doar litere.";
+                    document.getElementById(`name-${clientId}`).parentNode.appendChild(errorDiv);
+                } else {
+                    nameError.style.display = 'block';
+                }
+                return;
+            }
+
+            if (!surname || !validateNameSurname(surname)) {
+                if (!surnameError) {
+                    const errorDiv = document.createElement("div");
+                    errorDiv.classList.add("error-message");
+                    errorDiv.id = `surname-error-${clientId}`;
+                    errorDiv.textContent = "Prenumele trebuie să conțină doar litere.";
+                    document.getElementById(`surname-${clientId}`).parentNode.appendChild(errorDiv);
+                } else {
+                    surnameError.style.display = 'block';
+                }
+                return;
+            }
+
+            if (!email) {
+                if (!emailError) {
+                    const errorDiv = document.createElement("div");
+                    errorDiv.classList.add("error-message");
+                    errorDiv.id = `email-error-${clientId}`;
+                    errorDiv.textContent = "Emailul nu poate fi gol.";
+                    document.getElementById(`email-${clientId}`).parentNode.appendChild(errorDiv);
+                } else {
+                    emailError.style.display = 'block';
+                }
+                return;
+            }
+
+            // Validarea pentru simbolul @ în email
+            if (!email.includes("@")) {
+                if (!emailError) {
+                    const errorDiv = document.createElement("div");
+                    errorDiv.classList.add("error-message");
+                    errorDiv.id = `email-error-${clientId}`;
+                    errorDiv.textContent = "Emailul trebuie să conțină simbolul '@'.";
+                    document.getElementById(`email-${clientId}`).parentNode.appendChild(errorDiv);
+                } else {
+                    emailError.style.display = 'block';
+                }
+                return;
+            }
+
+            if (!validatePhone(phone)) {
+                phoneError.style.display = 'block';
+                document.getElementById(`phone-${clientId}`).classList.add('input-error');
+                return;
+            }
+
+            // Salvăm modificările
+            const response = await fetch(`/clienti/${clientId}`, {
+                method: 'PUT',
+                headers: { 'Content-Type': 'application/json' },
+                body: JSON.stringify({
+                    nume: name,
+                    prenume: surname,
+                    email: email,
+                    telefon: phone
+                }),
+            });
+
+            if (response.ok) {
+                location.reload();
+            } else {
+                const errorData = await response.text();
+                showError(errorData);
+            }
+        }
+
+        async function deleteClient(clientId) {
+            if (confirm("Ești sigur că vrei să ștergi acest client?")) {
+                const response = await fetch('/clienti/delete', {
+                    method: 'POST',
+                    headers: { 'Content-Type': 'application/x-www-form-urlencoded' },
+                    body: new URLSearchParams({ id: clientId }),
+                });
+                if (response.ok) location.reload();
+            }
+        }
+
+        async function addClient() {
+            const phone = document.getElementById("new-phone").value;
+            const phoneError = document.getElementById("new-phone-error");
+            const name = document.getElementById("new-name").value.trim();
+            const surname = document.getElementById("new-surname").value.trim();
+            const email = document.getElementById("new-email").value.trim();
+
+            // Validare telefon
+            if (!validatePhone(phone)) {
+                phoneError.style.display = 'block';
+                document.getElementById("new-phone").classList.add('input-error');
+                return;
+            }
+
+            // Validare nume (doar litere)
+            if (!validateNameSurname(name)) {
+                const nameError = document.getElementById("new-name-error");
+                if (!nameError) {
+                    const errorDiv = document.createElement("div");
+                    errorDiv.classList.add("error-message");
+                    errorDiv.id = "new-name-error";
+                    errorDiv.textContent = "Numele poate conține doar litere.";
+                    document.getElementById("new-name").parentNode.appendChild(errorDiv);
+                } else {
+                    nameError.style.display = 'block';
+                }
+                return;
+            }
+
+            // Validare prenume (doar litere)
+            if (!/^[a-zA-Z]+$/.test(surname)) {
+                const surnameError = document.getElementById("new-surname-error");
+                if (!surnameError) {
+                    const errorDiv = document.createElement("div");
+                    errorDiv.classList.add("error-message");
+                    errorDiv.id = "new-surname-error";
+                    errorDiv.textContent = "Prenumele poate conține doar litere.";
+                    document.getElementById("new-surname").parentNode.appendChild(errorDiv);
+                } else {
+                    surnameError.style.display = 'block';
+                }
+                return;
+            }
+
+            // Validare email (trebuie să conțină '@')
+            if (!email.includes("@")) {
+                const emailError = document.getElementById("new-email-error");
+                if (!emailError) {
+                    const errorDiv = document.createElement("div");
+                    errorDiv.classList.add("error-message");
+                    errorDiv.id = "new-email-error";
+                    errorDiv.textContent = "Emailul trebuie să conțină simbolul '@'.";
+                    document.getElementById("new-email").parentNode.appendChild(errorDiv);
+                } else {
+                    emailError.style.display = 'block';
+                }
+                return;
+            }
+
+            // Dacă toate validările sunt trecute, trimite cererea POST
+            const response = await fetch('/clienti', {
+                method: 'POST',
+                headers: { 'Content-Type': 'application/x-www-form-urlencoded' },
+                body: new URLSearchParams({
+                    nume: name,
+                    prenume: surname,
+                    email: email,
+                    telefon: phone
+                }),
+            });
+
+            if (response.ok) {
+                location.reload();
+            } else {
+                const errorData = await response.text();
+                showError(errorData);
+            }
+        }
+
+    </script>
+
+</head>
+<body>
+<button class="theme-toggle" onclick="toggleTheme()">
+<i class="fas fa-sun"></i>
+<span>Light Mode</span>
+</button>
+<div class="hero-section mb-5">
+    <div class="hero-overlay"></div>
+    <div class="hero-content">
+        <h1 class="display-4 fw-bold mb-3">Elite Fitness Club</h1>
+    </div>
+</div>
+
+<div class="container mt-5">
+    <h1>Lista Clienților</h1>
+    <table class="table">
+        <thead>
+        <tr>
+            <th>Nume</th>
+            <th>Prenume</th>
+            <th>Email</th>
+            <th>Telefon</th>
+            <th>Acțiuni</th>
+        </tr>
+        </thead>
+        <tbody>
+        <tr th:each="client : ${clienti}" th:id="'row-' + ${client.id}">
+            <td class="name-cell" th:text="${client.nume}"></td>
+            <td class="surname-cell" th:text="${client.prenume}"></td>
+            <td class="email-cell" th:text="${client.email}"></td>
+            <td class="phone-cell" th:text="${client.telefon}"></td>
+            <td>
+                <button class="btn btn-primary btn-sm edit-btn" th:onclick="'editRow(' + ${client.id} + ')'">Editează</button>
+                <button class="btn btn-danger btn-sm" th:onclick="'deleteClient(' + ${client.id} + ')'">Șterge</button>
+            </td>
+        </tr>
+        </tbody>
+    </table>
+</div>
+<div class="container mt-5">
+    <h2>Adaugă un client</h2>
+    <form onsubmit="event.preventDefault(); addClient();">
+        <div class="row mb-3">
+            <div class="col">
+                <input type="text" class="form-control" id="new-name" placeholder="Nume" required>
+            </div>
+            <div class="col">
+                <input type="text" class="form-control" id="new-surname" placeholder="Prenume" required>
+            </div>
+        </div>
+        <div class="row mb-3">
+            <div class="col">
+                <input type="email" class="form-control" id="new-email" placeholder="Email" >
+            </div>
+            <div class="col">
+                <input type="text" class="form-control" id="new-phone" placeholder="Telefon" required>
+                <div class="error-message" id="new-phone-error">Numărul de telefon trebuie să conțină exact 10 cifre</div>
+            </div>
+        </div>
+        <div class="row">
+            <div class="col">
+                <button type="submit" class="btn btn-success w-100">Adaugă</button>
+            </div>
+        </div>
+    </form>
+</div>
+<div class="container mt-5">
+    <h2>Caută un client</h2>
+    <form onsubmit="event.preventDefault(); searchClient();">
+        <div class="row mb-3">
+            <div class="col">
+                <input type="text" class="form-control" id="search-name" placeholder="Introdu numele">
+            </div>
+            <div class="col">
+                <button type="submit" class="btn btn-primary">Caută</button>
+            </div>
+        </div>
+    </form>
+</div>
+
+<div class="container">
+    <h2>Rezultate căutare</h2>
+    <table class="table" id="search-results" style="display: none;">
+        <thead>
+        <tr>
+            <th>Nume</th>
+            <th>Prenume</th>
+            <th>Email</th>
+            <th>Telefon</th>
+        </tr>
+        </thead>
+        <tbody id="search-results-body">
+        </tbody>
+    </table>
+</div>
+</body>
+</html>

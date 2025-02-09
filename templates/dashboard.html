@@ -1,0 +1,216 @@
+<!DOCTYPE html>
+<html>
+<head>
+  <meta charset="UTF-8">
+  <title>Elite Fitness Club</title>
+  <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css">
+  <style>
+    body {
+      background: linear-gradient(to right, #1a1a1a, #2d2d2d);
+      color: #ffffff;
+      font-family: 'Arial', sans-serif;
+    }
+
+    .hero-section {
+      background-image: url('https://images.unsplash.com/photo-1534438327276-14e5300c3a48?ixlib=rb-1.2.1&auto=format&fit=crop&w=1950&q=80');
+      background-size: cover;
+      background-position: center;
+      height: 40vh;
+      position: relative;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+    }
+
+    .hero-overlay {
+      position: absolute;
+      top: 0;
+      left: 0;
+      right: 0;
+      bottom: 0;
+      background: rgba(0, 0, 0, 0.6);
+    }
+
+    .hero-content {
+      position: relative;
+      text-align: center;
+      z-index: 1;
+    }
+
+    .card {
+      background: rgba(255, 255, 255, 0.1);
+      backdrop-filter: blur(10px);
+      border: 1px solid rgba(255, 255, 255, 0.1);
+      transition: transform 0.3s ease;
+    }
+
+    .card:hover {
+      transform: translateY(-5px);
+    }
+
+    .btn-primary {
+      background: linear-gradient(45deg, #c6a972, #e9d5aa);
+      border: none;
+      color: #000;
+      font-weight: 600;
+      padding: 12px 30px;
+      transition: all 0.3s ease;
+    }
+
+    .btn-primary:hover {
+      background: linear-gradient(45deg, #e9d5aa, #c6a972);
+      transform: translateY(-2px);
+      box-shadow: 0 5px 15px rgba(198, 169, 114, 0.4);
+    }
+
+    .card-title {
+      color: #c6a972;
+      font-weight: 600;
+    }
+
+    .card-text {
+      color: #cccccc;
+    }
+
+    .contact-section {
+      background: rgba(0, 0, 0, 0.7);
+      padding: 50px 0;
+    }
+
+    .map-container {
+      height: 400px;
+      width: 100%;
+    }
+  </style>
+</head>
+<body>
+<!-- Hero Section -->
+<div class="hero-section mb-5">
+  <div class="hero-overlay"></div>
+  <div class="hero-content">
+    <h1 id="hero-title" class="display-4 fw-bold mb-3">Elite Fitness Club</h1>
+    <p id="hero-subtitle" class="lead">Where Luxury Meets Performance</p>
+  </div>
+</div>
+
+<div class="container">
+  <div class="row g-4">
+    <!-- Clients Card -->
+    <div class="col-md-6">
+      <div class="card h-100">
+        <div class="card-body">
+          <h5 id="members-title" class="card-title d-flex align-items-center">
+            <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" class="me-2">
+              <path d="M17 21v-2a4 4 0 0 0-4-4H5a4 4 0 0 0-4 4v2"></path>
+              <circle cx="9" cy="7" r="4"></circle>
+              <path d="M23 21v-2a4 4 0 0 0-3-3.87"></path>
+              <path d="M16 3.13a4 4 0 0 1 0 7.75"></path>
+            </svg>
+            Members
+          </h5>
+          <p id="members-description" class="card-text">Access our exclusive membership database to manage client profiles, track progress, and maintain relationships.</p>
+          <a href="/clienti" class="btn btn-primary mt-3">Members</a>
+        </div>
+      </div>
+    </div>
+
+    <!-- Employees Card -->
+    <div class="col-md-6">
+      <div class="card h-100">
+        <div class="card-body">
+          <h5 id="staff-title" class="card-title d-flex align-items-center">
+            <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" class="me-2">
+              <path d="M16 21v-2a4 4 0 0 0-4-4H6a4 4 0 0 0-4 4v2"></path>
+              <circle cx="9" cy="7" r="4"></circle>
+              <path d="M22 21v-2a4 4 0 0 0-3-3.87"></path>
+              <path d="M16 3.13a4 4 0 0 1 0 7.75"></path>
+            </svg>
+            Staff
+          </h5>
+          <p id="staff-description" class="card-text">Manage our professional team of trainers and staff members to ensure premium service delivery.</p>
+          <a href="/angajati" class="btn btn-primary mt-3">Staff</a>
+        </div>
+      </div>
+    </div>
+  </div>
+</div>
+
+<!-- Contact Section -->
+<div class="contact-section text-center">
+  <div class="container">
+    <h2 id="contact-us-title" class="display-5 mb-4 text-white">Contact Us</h2>
+    <p id="contact-us-description" class="lead text-white mb-5">We'd love to hear from you! Whether you have a question, feedback, or want to join our club, feel free to reach out.</p>
+    <p class="text-white"><strong id="phone-label">Phone:</strong> +1 234 567 890</p>
+    <p class="text-white"><strong id="email-label">Email:</strong> contact@elitefitness.com</p>
+    <p class="text-white"><strong id="location-label">Location:</strong> 123 Fitness Avenue, London, England</p>
+  </div>
+</div>
+
+<!-- Google Maps Section -->
+<div class="container my-5">
+  <h2 id="find-us-title" class="text-center text-white">Find Us</h2>
+  <div class="map-container">
+    <iframe
+            src="https://www.google.com/maps/embed?pb=!1m18!1m12!1m3!1d2380.446661658735!2d-73.99756325045522!3d40.74108717801816!2m3!1f0!2f0!3f0!3m2!1i1024!2i768!4f13.1!3m3!1m2!1s0x89c259ae928b7759%3A0xbead60748f8ecbdb!2sGoogle!5e0!3m2!1sen!2sus!4v1622000394133!5m2!1sen!2sus"
+            width="100%" height="100%" style="border:0;" allowfullscreen="" loading="lazy"></iframe>
+  </div>
+</div>
+
+<!-- Language Switcher Button -->
+<div class="container text-center">
+  <button class="btn btn-primary" onclick="switchLanguage()">Switch Language</button>
+</div>
+
+<script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/js/bootstrap.bundle.min.js"></script>
+<script>
+  const translations = {
+    en: {
+      heroTitle: "Elite Fitness Club",
+      heroSubtitle: "Where Luxury Meets Performance",
+      membersTitle: "Members",
+      membersDescription: "Access our exclusive membership database to manage client profiles, track progress, and maintain relationships.",
+      staffTitle: "Staff",
+      staffDescription: "Manage our professional team of trainers and staff members to ensure premium service delivery.",
+      contactUsTitle: "Contact Us",
+      contactUsDescription: "We'd love to hear from you! Whether you have a question, feedback, or want to join our club, feel free to reach out.",
+      phoneLabel: "Phone:",
+      emailLabel: "Email:",
+      locationLabel: "Location:",
+      findUsTitle: "Find Us"
+    },
+    ro: {
+      heroTitle: "Clubul de Fitness Elite",
+      heroSubtitle: "Unde luxul se întâlnește cu performanța",
+      membersTitle: "Membri",
+      membersDescription: "Accesați baza noastră de date exclusivă pentru a gestiona profilurile clienților, urmări progresul și menține relațiile.",
+      staffTitle: "Personal",
+      staffDescription: "Gestionați echipa noastră de profesioniști pentru a asigura livrarea unui serviciu premium.",
+      contactUsTitle: "Contactați-ne",
+      contactUsDescription: "Am dori să auzim de la tine! Indiferent dacă ai o întrebare, feedback sau dorești să te alături clubului nostru, nu ezita să ne contactezi.",
+      phoneLabel: "Telefon:",
+      emailLabel: "Email:",
+      locationLabel: "Locație:",
+      findUsTitle: "Găsește-ne"
+    }
+  };
+
+  let currentLanguage = 'en';
+
+  function switchLanguage() {
+    currentLanguage = (currentLanguage === 'en') ? 'ro' : 'en';
+    document.getElementById('hero-title').innerText = translations[currentLanguage].heroTitle;
+    document.getElementById('hero-subtitle').innerText = translations[currentLanguage].heroSubtitle;
+    document.getElementById('members-title').innerText = translations[currentLanguage].membersTitle;
+    document.getElementById('members-description').innerText = translations[currentLanguage].membersDescription;
+    document.getElementById('staff-title').innerText = translations[currentLanguage].staffTitle;
+    document.getElementById('staff-description').innerText = translations[currentLanguage].staffDescription;
+    document.getElementById('contact-us-title').innerText = translations[currentLanguage].contactUsTitle;
+    document.getElementById('contact-us-description').innerText = translations[currentLanguage].contactUsDescription;
+    document.getElementById('phone-label').innerText = translations[currentLanguage].phoneLabel;
+    document.getElementById('email-label').innerText = translations[currentLanguage].emailLabel;
+    document.getElementById('location-label').innerText = translations[currentLanguage].locationLabel;
+    document.getElementById('find-us-title').innerText = translations[currentLanguage].findUsTitle;
+  }
+</script>
+</body>
+</html>
