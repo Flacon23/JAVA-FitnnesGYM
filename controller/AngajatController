@@ -1,0 +1,146 @@
+/** Clasa pentru gestionre Angajati
+ * @author Rau Flavius
+ * @version 26 Decembrie 2024
+ */
+package com.fitnessapp.controller;
+
+import com.fitnessapp.entity.Angajat;
+import com.fitnessapp.service.AngajatService;
+import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.http.ResponseEntity;
+import org.springframework.stereotype.Controller;
+import org.springframework.ui.Model;
+import org.springframework.web.bind.annotation.*;
+
+import java.util.List;
+
+@Controller
+@RequestMapping("/angajati")
+public class AngajatController {
+    private final AngajatService angajatService;
+
+    @Autowired
+    public AngajatController(AngajatService angajatService) {
+        this.angajatService = angajatService;
+    }
+
+    @GetMapping
+    public String getAllAngajati(Model model) {
+        var angajati = angajatService.getAllAngajati();
+        model.addAttribute("angajati", angajati);
+        return "angajati.html";
+    }
+
+    @PostMapping
+    @ResponseBody
+    public ResponseEntity<String> createAngajat(
+            @RequestParam String nume,
+            @RequestParam String prenume,
+            @RequestParam String functie,
+            @RequestParam Double salariu
+    ) {
+        try {
+            // Verificăm dacă vreun câmp este gol sau null
+            if (nume == null || nume.trim().isEmpty() ||
+                    prenume == null || prenume.trim().isEmpty() ||
+                    functie == null || functie.trim().isEmpty() ||
+                    salariu == null) {
+                return ResponseEntity.badRequest().body("Toate câmpurile sunt obligatorii și nu pot fi goale.");
+            }
+
+            // Validăm că numele și prenumele conțin doar litere
+            if (!nume.matches("[a-zA-ZăâîșțĂÂÎȘȚ]+")) {
+                return ResponseEntity.badRequest().body("Numele trebuie să conțină doar litere.");
+            }
+
+            if (!prenume.matches("[a-zA-ZăâîșțĂÂÎȘȚ]+")) {
+                return ResponseEntity.badRequest().body("Prenumele trebuie să conțină doar litere.");
+            }
+
+            // Validăm că funcția conține doar litere și spații
+            if (!functie.matches("[a-zA-ZăâîșțĂÂÎȘȚ ]+")) {
+                return ResponseEntity.badRequest().body("Funcția trebuie să conțină doar litere și spații.");
+            }
+
+            // Validăm că salariul este un număr pozitiv
+            if (salariu <= 0) {
+                return ResponseEntity.badRequest().body("Salariul trebuie să fie un număr pozitiv.");
+            }
+
+            // Creăm angajatul și setăm valorile
+            Angajat angajat = new Angajat();
+            angajat.setNume(nume);
+            angajat.setPrenume(prenume);
+            angajat.setFunctie(functie);
+            angajat.setSalariu(salariu);
+
+            // Salvăm angajatul prin serviciu
+            angajatService.addAngajat(angajat);
+
+            return ResponseEntity.ok("Angajat adăugat cu succes.");
+        } catch (IllegalArgumentException e) {
+            return ResponseEntity.badRequest().body(e.getMessage());
+        }
+    }
+
+
+    @PutMapping("/{id}")
+    @ResponseBody
+    public ResponseEntity<String> updateAngajat(
+            @PathVariable Long id,
+            @RequestBody Angajat updatedAngajat
+    ) {
+        try {
+            // Validare câmpuri goale
+            StringBuilder errors = new StringBuilder();
+            if (updatedAngajat.getNume() == null || updatedAngajat.getNume().trim().isEmpty()) {
+                errors.append("Numele este obligatoriu.\n");
+            }
+            if (updatedAngajat.getPrenume() == null || updatedAngajat.getPrenume().trim().isEmpty()) {
+                errors.append("Prenumele este obligatoriu.\n");
+            }
+            if (updatedAngajat.getFunctie() == null || updatedAngajat.getFunctie().trim().isEmpty()) {
+                errors.append("Email-ul este obligatoriu.\n");
+            }
+            if (errors.length() > 0) {
+                // Returnăm erorile în cazul în care există câmpuri necompletate
+                return ResponseEntity.badRequest().body(errors.toString());
+            }
+
+            // Încercăm actualizarea angajatului
+            boolean success = angajatService.updateAngajat(id, updatedAngajat);
+            if (success) {
+                return ResponseEntity.ok("Angajat actualizat cu succes.");
+            } else {
+                return ResponseEntity.notFound().build();
+            }
+        } catch (IllegalArgumentException e) {
+            return ResponseEntity.badRequest().body("Eroare la actualizare: " + e.getMessage());
+        }
+    }
+
+
+    @PostMapping("/delete")
+    @ResponseBody
+    public ResponseEntity<Void> deleteAngajat(@RequestParam Long id) {
+        boolean success = angajatService.deleteAngajatById(id);
+        return success ? ResponseEntity.ok().build() : ResponseEntity.notFound().build();
+    }
+}
+
+@RestController
+@RequestMapping("/api/angajati")
+class AngajatApiController {
+    private final AngajatService angajatService;
+
+    @Autowired
+    public AngajatApiController(AngajatService angajatService) {
+        this.angajatService = angajatService;
+    }
+
+    @GetMapping
+    public ResponseEntity<List<Angajat>> getAllAngajatiJson() {
+        var angajati = angajatService.getAllAngajati();
+        return ResponseEntity.ok(angajati);
+    }
+}
